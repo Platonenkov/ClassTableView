@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -15,8 +16,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using AssemblyGetDataTable;
+using MathCore.ViewModels;
 using Microsoft.Win32;
 using Notification.Wpf;
+using OpenXmlEx;
+using OpenXmlEx.SubClasses;
 
 namespace ClassTableView
 {
@@ -30,274 +35,40 @@ namespace ClassTableView
         public MainWindow()
         {
             InitializeComponent();
-            InitAssembly(null,null);
+            LoadAssembly(Assembly.GetEntryAssembly());
         }
 
         #endregion
 
         #region Свойства
 
-        #region Assemblies : IEnumerable<string> - Сборки
+        #region Assemblies : IEnumerable<AssemblyHelper> - Сборки
 
         /// <summary>Сборки</summary>
         public static readonly DependencyProperty AssembliesProperty =
             DependencyProperty.Register(
                 nameof(Assemblies),
-                typeof(IEnumerable<string>),
+                typeof(IEnumerable<AssemblyInfoModel>),
                 typeof(MainWindow),
-                new PropertyMetadata(default(IEnumerable<string>)));
+                new PropertyMetadata(default(IEnumerable<AssemblyInfoModel>)));
 
         /// <summary>Сборки</summary>
-        public IEnumerable<string> Assemblies { get => (IEnumerable<string>)GetValue(AssembliesProperty); set => SetValue(AssembliesProperty, value); }
+        public IEnumerable<AssemblyInfoModel> Assemblies { get => (IEnumerable<AssemblyInfoModel>)GetValue(AssembliesProperty); set => SetValue(AssembliesProperty, value); }
 
         #endregion
 
-        #region SelectedAssembly : string - Выбранная сборка
+        #region SelectedTypeInfoModel : AssemblyTypeInfoModel - AssemblyTypeInfoModel
 
-        /// <summary>Выбранная сборка</summary>
-        public static readonly DependencyProperty SelectedAssemblyProperty =
+        /// <summary>AssemblyTypeInfoModel</summary>
+        public static readonly DependencyProperty SelectedTypeInfoProperty =
             DependencyProperty.Register(
-                nameof(SelectedAssembly),
-                typeof(string),
+                nameof(SelectedTypeInfoModel),
+                typeof(AssemblyTypeInfoModel),
                 typeof(MainWindow),
-                new PropertyMetadata(default(string)));
+                new PropertyMetadata(default(AssemblyTypeInfoModel)));
 
-        /// <summary>Выбранная сборка</summary>
-        public string SelectedAssembly { get => (string)GetValue(SelectedAssemblyProperty); set => SetValue(SelectedAssemblyProperty, value); }
-
-        #endregion
-
-        #region Types : IEnumerable<Type> - Типы
-
-        /// <summary>Типы</summary>
-        public static readonly DependencyProperty TypesProperty =
-            DependencyProperty.Register(
-                nameof(Types),
-                typeof(IEnumerable<Type>),
-                typeof(MainWindow),
-                new PropertyMetadata(default(IEnumerable<Type>)));
-
-        /// <summary>Типы</summary>
-        public IEnumerable<Type> Types { get => (IEnumerable<Type>)GetValue(TypesProperty); set => SetValue(TypesProperty, value); }
-
-        #endregion
-
-        #region SelectedType : Type - Выбранный тип
-
-        /// <summary>Выбранный тип</summary>
-        public static readonly DependencyProperty SelectedTypeProperty =
-            DependencyProperty.Register(
-                nameof(SelectedType),
-                typeof(Type),
-                typeof(MainWindow),
-                new PropertyMetadata(default(Type)));
-
-        /// <summary>Выбранный тип</summary>
-        public Type SelectedType { get => (Type)GetValue(SelectedTypeProperty); set => SetValue(SelectedTypeProperty, value); }
-
-        #endregion
-
-        #region Members : IEnumerable<MemberInfo> - Список публичных полей
-
-        /// <summary>Список публичных полей</summary>
-        public static readonly DependencyProperty MembersProperty =
-            DependencyProperty.Register(
-                nameof(Members),
-                typeof(IEnumerable<MemberInfo>),
-                typeof(MainWindow),
-                new PropertyMetadata(default(IEnumerable<MemberInfo>)));
-
-        /// <summary>Список публичных полей</summary>
-        public IEnumerable<MemberInfo> Members { get => (IEnumerable<MemberInfo>)GetValue(MembersProperty); set => SetValue(MembersProperty, value); }
-
-        #endregion
-
-        #region SelectedMember : MemberInfo - Выбранное поле
-
-        /// <summary>Выбранное поле</summary>
-        public static readonly DependencyProperty SelectedMemberProperty =
-            DependencyProperty.Register(
-                nameof(SelectedMember),
-                typeof(MemberInfo),
-                typeof(MainWindow),
-                new PropertyMetadata(default(MemberInfo)));
-
-        /// <summary>Выбранное поле</summary>
-        public MemberInfo SelectedMember { get => (MemberInfo)GetValue(SelectedMemberProperty); set => SetValue(SelectedMemberProperty, value); }
-
-        #endregion
-
-        #endregion
-
-        #region Поля
-
-
-
-        #endregion
-
-        #region Команды
-
-
-
-        #endregion
-
-        #region Методы
-
-        void InitAssembly(object Sender, RoutedEventArgs RoutedEventArgs)
-        {
-            Assembly = Assembly.GetEntryAssembly();
-            var assemblies = new List<string>();
-            var entry = Assembly.GetEntryAssembly()?.GetReferencedAssemblies().Select(a=>a.Name).ToList();
-            if(entry?.Count>0)
-                assemblies.AddRange(entry);
-            assemblies.Add(Assembly.GetEntryAssembly().GetName().Name);
-            Assemblies = assemblies;
-        }
-
-
-        #endregion
-
-        private void ReadAssembly(object Sender, RoutedEventArgs E)
-        {
-            try
-            {
-                if (SelectedAssembly is null)
-                {
-                    App.Notifier.Show("Ошибка","Выберите сборку",NotificationType.Error);
-                    return;
-                }
-                Assembly assembly = Assembly.Load(SelectedAssembly);
-                Types = assembly.GetTypes().Where(t=>t.IsPublic && t.IsClass || t.IsEnum);
-            }
-            catch (Exception e)
-            {
-                App.Notifier.Show("Error", $"Ошибка загрузки сборки: {e.Message}",type:NotificationType.None ,trim:NotificationTextTrimType.Attach);
-            }
-        }
-
-        private void GetMembers(object Sender, RoutedEventArgs E)
-        {
-            if (SelectedType is null)
-            {
-                App.Notifier.Show("Ошибка", "Выберите тип", NotificationType.Error);
-                return;
-            }
-
-            AssemblyText = SelectedType.Name;
-
-            if (SelectedType.BaseType == typeof(Enum))
-            {
-                Members = SelectedType.GetMembers(
-                        //BindingFlags.Instance
-                        //| BindingFlags.Static
-                        //| BindingFlags.Public
-                        //| BindingFlags.NonPublic
-                        //| BindingFlags.DeclaredOnly
-                        ).Where(v=>v.MemberType== MemberTypes.Field)
-                    //.Where(v=>v.Name.ToUpper().StartsWith("GET"))
-                    ;
-
-            }
-            else Members = SelectedType.GetMembers(
-                //BindingFlags.Instance
-                //| BindingFlags.Static
-                //| BindingFlags.Public
-                //| BindingFlags.NonPublic
-                //| BindingFlags.DeclaredOnly
-                )
-               .Where(v=>v.MemberType == MemberTypes.Property)
-               //.Where(v=>v.Name.ToUpper().StartsWith("GET"))
-                ;
-
-            foreach (var m in Members)
-            {
-                var attribute = m.GetCustomAttribute<DescriptionAttribute>();
-                if (attribute is not null)
-                {
-
-                }
-            }
-        }
-
-        private Assembly Assembly;
-        private void GetFields(object Sender, SelectionChangedEventArgs SelectionChangedEventArgs)
-        {
-            if (SelectedType is null)
-            {
-                App.Notifier.Show("Ошибка", "Выберите тип", NotificationType.Error);
-                return;
-            }
-
-            Fields = SelectedType.GetFields();
-        }
-
-        #region Fields : IEnumerable<FieldInfo>  - Поля
-
-        /// <summary>Поля</summary>
-        public static readonly DependencyProperty FieldsProperty =
-            DependencyProperty.Register(
-                nameof(Fields),
-                typeof(IEnumerable<FieldInfo> ),
-                typeof(MainWindow),
-                new PropertyMetadata(default(IEnumerable<FieldInfo> )));
-
-        /// <summary>Поля</summary>
-        public IEnumerable<FieldInfo> Fields { get => (IEnumerable<FieldInfo> )GetValue(FieldsProperty); set => SetValue(FieldsProperty, value); }
-
-        #endregion
-
-        #region SelectedField : FieldInfo  - Выбранное поле
-
-        /// <summary>Выбранное поле</summary>
-        public static readonly DependencyProperty SelectedFieldProperty =
-            DependencyProperty.Register(
-                nameof(SelectedField),
-                typeof(FieldInfo ),
-                typeof(MainWindow),
-                new PropertyMetadata(default(FieldInfo )));
-
-        /// <summary>Выбранное поле</summary>
-        public FieldInfo SelectedField { get => (FieldInfo )GetValue(SelectedFieldProperty); set => SetValue(SelectedFieldProperty, value); }
-
-        #endregion
-        private void GetProperties(object Sender, SelectionChangedEventArgs SelectionChangedEventArgs)
-        {
-            if (SelectedType is null)
-            {
-                App.Notifier.Show("Ошибка", "Выберите тип", NotificationType.Error);
-                return;
-            }
-
-            Properties = SelectedType.GetProperties();
-        }
-
-        #region Properties : IEnumerable<PropertyInfo> - Свойства
-
-        /// <summary>Свойства</summary>
-        public static readonly DependencyProperty PropertiesProperty =
-            DependencyProperty.Register(
-                nameof(Properties),
-                typeof(IEnumerable<PropertyInfo>),
-                typeof(MainWindow),
-                new PropertyMetadata(default(IEnumerable<PropertyInfo>)));
-
-        /// <summary>Свойства</summary>
-        public IEnumerable<PropertyInfo> Properties { get => (IEnumerable<PropertyInfo>)GetValue(PropertiesProperty); set => SetValue(PropertiesProperty, value); }
-
-        #endregion
-
-        #region SelectedProperty : PropertyInfo - Выбранное свойство
-
-        /// <summary>Выбранное свойство</summary>
-        public static readonly DependencyProperty SelectedPropertyProperty =
-            DependencyProperty.Register(
-                nameof(SelectedProperty),
-                typeof(PropertyInfo),
-                typeof(MainWindow),
-                new PropertyMetadata(default(PropertyInfo)));
-
-        /// <summary>Выбранное свойство</summary>
-        public PropertyInfo SelectedProperty { get => (PropertyInfo)GetValue(SelectedPropertyProperty); set => SetValue(SelectedPropertyProperty, value); }
+        /// <summary>AssemblyTypeInfoModel</summary>
+        public AssemblyTypeInfoModel SelectedTypeInfoModel { get => (AssemblyTypeInfoModel)GetValue(SelectedTypeInfoProperty); set => SetValue(SelectedTypeInfoProperty, value); }
 
         #endregion
 
@@ -315,51 +86,82 @@ namespace ClassTableView
         public string AssemblyText { get => (string)GetValue(AssemblyTextProperty); set => SetValue(AssemblyTextProperty, value); }
 
         #endregion
+
+        #endregion
+
+        #region Методы
+
         private void LoadAssemblyClick(object Sender, RoutedEventArgs E)
         {
-            if (string.IsNullOrWhiteSpace(AssemblyText))
+            var dlg = new OpenFileDialog();
+            if (dlg.ShowDialog() == true)
             {
-                App.Notifier.Show("Error", "Введите имя сборки", NotificationType.Error);
-                return;
-            }
-            var type = Type.GetType(AssemblyText);
-            if (type is null)
-            {
-                App.Notifier.Show("Error", "Тип не опознан, выберите файл", NotificationType.Error);
-
-                var dlg = new OpenFileDialog();
-                if (dlg.ShowDialog() == true)
+                var file = dlg.FileName;
+                try
                 {
-                    var file = dlg.FileName;
-                    try
-                    {
-                        var assembly = Assembly.LoadFrom(file);
-                        LoadAssembly(assembly);
-                    }
-                    catch (Exception e)
-                    {
-                        App.Notifier.Show("Error", $"Ошибка загрузки сборки:{e.Message}", NotificationType.Error);
-                    }
-
+                    var assembly = Assembly.LoadFrom(file);
+                    Assemblies = new List<AssemblyInfoModel>() { new AssemblyInfoModel(assembly) };
+                }
+                catch (Exception e)
+                {
+                    App.Notifier.Show("Error", $"Ошибка загрузки сборки:{e.Message}", NotificationType.Error,trim:NotificationTextTrimType.Attach);
                 }
 
-
-                return;
             }
-
-            LoadAssembly(type.Assembly);
         }
 
         void LoadAssembly(Assembly assembly)
         {
-            Assembly = assembly;
-            var assemblies = new List<string>();
-            assemblies.Add(assembly.GetName().Name);
-            var entry = assembly.GetReferencedAssemblies().Select(a => a.Name).ToList();
-            if (entry?.Count > 0)
-                assemblies.AddRange(entry);
-            Assemblies = assemblies;
+            Assemblies = AssemblyDataTable.GetAssemblyInfo(assembly).ToArray();
+        }
 
+        #endregion
+
+        private void LoadReport(object Sender, RoutedEventArgs E)
+        {
+            //if(TreeViewData.SelectedItem is not AssemblyInfo assembly)
+            //    return;
+            //var dlg = new SaveFileDialog();
+            //if(dlg.ShowDialog() != true)
+            //    return;
+            //using var writer = new EasyWriter($"{dlg.FileName}.xlsm", Helper.Styles);
+            var assembly = TreeViewData.ItemsSource as IEnumerable<AssemblyInfoModel>;
+            foreach (var assembly_info_model in assembly.SelectMany(s => s.TypesInfo).Where(s => s.IsSelected))
+            {
+
+            }
+
+            foreach (var result in Assemblies.SelectMany(s => s.TypesInfo).Where(s => s.IsSelected))
+            {
+
+            }
+
+            //foreach (var type in assembly.SelectedTypes?.Where(t=>t.IsSelected))
+            //{
+
+            //}
+
+            //var sheet_name_1 = "Test_sheet_name";
+            //writer.AddNewSheet(sheet_name_1);
+            ////writer.SetFilter(1, 5, 3, 5); //SetFilter(string ListName, uint FirstColumn, uint LastColumn, uint FirstRow, uint LastRow)
+            //writer.SetGrouping(false, false); // SetGrouping(bool SummaryBelow = false, bool SummaryRight = false)
+            ////writer.MergeCells(6, 3, 10, 5); //MergeCells(int StartCell, int StartRow, int EndCell, int EndRow)
+            //var width_setting = new List<WidthOpenXmlEx>
+            //{
+            //    new (1, 2, 7),
+            //    new (3, 3, 11),
+            //    new (4, 12, 9.5),
+            //    new (13, 13, 17),
+            //    new (14, 14, 40),
+            //    new (15, 16, 15),
+            //    new (18, 20, 15)
+            //};
+            //writer.SetWidth(width_setting); //SetWidth(IEnumerable<WidthOpenXmlEx> settings)
+            //writer.AddRow(3, 0, true, true);
+            ////AddRow(uint RowIndex, uint CollapsedLvl = 0, bool ClosePreviousIfOpen = false, bool AddSkipedRows = false)
+            ////CloseRow(uint RowNumber)
+            //writer.AddCell("Test", 1, 3, 0);
+            ////AddCell(string text, uint CellNum, uint RowNum, uint StyleIndex = 0, CellValues Type = CellValues.String, bool CanReWrite = false)
         }
     }
 }

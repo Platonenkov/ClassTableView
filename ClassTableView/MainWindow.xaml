@@ -4,38 +4,69 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ClassTableView"
+        xmlns:reflection="clr-namespace:System.Reflection;assembly=System.Runtime"
+        xmlns:generic="clr-namespace:System.Collections.Generic;assembly=System.Collections"
+        xmlns:as="clr-namespace:AssemblyGetDataTable;assembly=AssemblyGetDataTable"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <DockPanel Margin="10" DataContext="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}}">
-        <DockPanel DockPanel.Dock="Top" >
-            <Button Content="Load" Click="LoadAssemblyClick" HorizontalAlignment="Right" DockPanel.Dock="Right"/>
-            <TextBox Text="{Binding AssemblyText}"/>
-        </DockPanel>
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-            <ComboBox Width="200" ItemsSource="{Binding Assemblies}"
-                      SelectedItem="{Binding SelectedAssembly}" SelectionChanged="ReadAssembly"/>
-            <!--<Button Content="Init" Width="100" Margin="10,0" Click="InitAssembly"/>-->
-
-        </StackPanel>
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-            <ComboBox Width="200" ItemsSource="{Binding Types}"
-                      DisplayMemberPath="Name"
-                      SelectedItem="{Binding SelectedType}" SelectionChanged="GetMembers"/>
-            <!--<ComboBox Width="200" ItemsSource="{Binding Types}" Visibility="Collapsed"
-                      DisplayMemberPath="Name"
-                      SelectedItem="{Binding SelectedType}" SelectionChanged="GetFields"/>
-            <ComboBox Width="200" ItemsSource="{Binding Types}" Visibility="Collapsed"
-                      DisplayMemberPath="Name"
-                      SelectedItem="{Binding SelectedType}" SelectionChanged="GetProperties"/>-->
-            <!--<Button Content="Init" Width="100" Margin="10,0" Click="InitAssembly"/>-->
-        </StackPanel>
-        <Grid>
+        <Grid Margin="10" DataContext="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}}">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition/>
-                <!--<RowDefinition/>
-                <RowDefinition/>-->
             </Grid.RowDefinitions>
-            <DataGrid ItemsSource="{Binding Members}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="7*"/>
+            </Grid.ColumnDefinitions>
+        <DockPanel Grid.ColumnSpan="3" Margin="0,5">
+            <Button Click="LoadAssemblyClick" Content="Load from file" VerticalAlignment="Top" HorizontalAlignment="Left" Width="100"/>
+            <Button Click="LoadReport" Content="Report" VerticalAlignment="Top" HorizontalAlignment="Right"  Width="100"/>
+        </DockPanel>
+        <GridSplitter Grid.Row="1" Grid.Column="1" ShowsPreview="False" Width="3"
+                      HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+        <TreeView Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Assemblies, UpdateSourceTrigger=PropertyChanged}" x:Name="TreeViewData">
+                <TreeView.Resources>
+                <HierarchicalDataTemplate DataType="{x:Type as:AssemblyInfoModel}" ItemsSource="{Binding TypesInfo, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBlock Text="{Binding Path=Assembly.FullName}" TextTrimming="CharacterEllipsis" />
+                    </HierarchicalDataTemplate>
+                <DataTemplate DataType="{x:Type  as:AssemblyTypeInfoModel}" >
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox IsChecked="{Binding Path=IsSelected, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0"/>
+                        <TextBlock Text="{Binding Path=Type, UpdateSourceTrigger=PropertyChanged}"  TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </DataTemplate>
+                </TreeView.Resources>
+            </TreeView>
+        <DataGrid Grid.Row="1" Grid.Column="2" ItemsSource="{Binding SelectedItem.MembersInfo, ElementName=TreeViewData, UpdateSourceTrigger=PropertyChanged}" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Type" Binding="{Binding Type.Name}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Summary" Binding="{Binding Summary}" IsReadOnly="True"/>
+                    <DataGridTemplateColumn Header="Attributes" IsReadOnly="True" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate >
+                                <ItemsControl ItemsSource="{Binding Path=Attributes}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="reflection:CustomAttributeData">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding}" Margin="3,0" HorizontalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <!--<DataGrid ItemsSource="{Binding Members}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
                     <DataGridTextColumn Header="Type" Binding="{Binding PropertyType}" IsReadOnly="True"/>
@@ -60,11 +91,6 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
-            </DataGrid>
-            <!--<DataGrid Grid.Row="1" ItemsSource="{Binding Fields}"/>
-            <DataGrid Grid.Row="2" ItemsSource="{Binding Properties}"/>-->
-
+            </DataGrid>-->
         </Grid>
-
-    </DockPanel>
 </Window>
