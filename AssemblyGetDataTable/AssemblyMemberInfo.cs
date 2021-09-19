@@ -60,29 +60,41 @@ namespace AssemblyGetDataTable
                     prefix = "T:";
                     break;
             }
-            if(string.IsNullOrWhiteSpace(prefix))
+            if (string.IsNullOrWhiteSpace(prefix))
                 return;
+            Summary = GetSummary(memberInfo, prefix);
+        }
+        private string GetSummary(MemberInfo memberInfo, string prefix)
+        {
             string path = prefix + memberInfo.DeclaringType?.FullName + "." + memberInfo.Name;
 
             XmlNode xmlDocuOfMethod = _Doc.SelectSingleNode(
-                            "//member[starts-with(@name, '" + path + "')]");
+                "//member[starts-with(@name, '" + path + "')]");
             if (xmlDocuOfMethod is null)
-                return;
+                return string.Empty;
+            var summary = string.Empty;
+
             foreach (XmlElement element in xmlDocuOfMethod)
             {
-                if(element.Name!="summary")
-                    continue;
-                var cleanStr = Regex.Replace(element.InnerXml, @"\s+", " ");
-                if (!string.IsNullOrWhiteSpace(Summary))
+                if (element.Name == "inheritdoc")
                 {
+                    var types = memberInfo.ReflectedType.GetInterfaces();
+                    foreach (var type1 in types)
+                    {
+                        var member = type1.GetMember(memberInfo.Name).FirstOrDefault();
+                        if (member is null)
+                            continue;
+
+                        summary += $"\n{GetSummary(member, prefix)}".Trim();
+                    }
+                    break;
 
                 }
-                Summary += cleanStr;
+                var cleanStr = Regex.Replace(element.InnerXml, @"\s+", " ");
+                summary += $"\n{cleanStr}".Trim();
             }
 
-            //XmlNode xmlDocuOfMethod = _Doc.SelectSingleNode(
-            //    "//member[starts-with(@name, '" + path + "')]");
-            //var cleanStr = Regex.Replace(row.InnerXml, @"\s+", " ");
+            return summary;
         }
 
     }

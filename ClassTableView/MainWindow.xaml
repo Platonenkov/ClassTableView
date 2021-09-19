@@ -43,7 +43,10 @@
             </DataTemplate>
             </TreeView.Resources>
         </TreeView>
-        <DataGrid Grid.Row="1" Grid.Column="2" ItemsSource="{Binding SelectedItem.MembersInfo, ElementName=TreeViewData, UpdateSourceTrigger=PropertyChanged}" AutoGenerateColumns="False">
+        <DockPanel Grid.Row="1" Grid.Column="2" DataContext="{Binding SelectedItem, ElementName=TreeViewData, UpdateSourceTrigger=PropertyChanged}">
+            <TextBlock DockPanel.Dock="Top"
+                Text="{Binding SelectedItem.Summary, ElementName=TreeViewData, UpdateSourceTrigger=PropertyChanged}"/>
+            <DataGrid  ItemsSource="{Binding MembersInfo, UpdateSourceTrigger=PropertyChanged}" AutoGenerateColumns="False">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
                     <DataGridTextColumn Header="Type" Binding="{Binding Type.Name}" IsReadOnly="True"/>
@@ -71,6 +74,7 @@
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
+        </DockPanel>
 
         <StatusBar Grid.Row="3" Grid.ColumnSpan="3">
             <StatusBarItem>
