@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ClassTableView</name>
+    </assembly>
+    <members>
+        <member name="T:ClassTableView.App">
+            <summary>
+            Interaction logic for App.xaml
+            </summary>
+            <summary>
+            App
+            </summary>
+        </member>
+        <member name="M:ClassTableView.App.OnDispatcherUnhandledException(System.Object,System.Windows.Threading.DispatcherUnhandledExceptionEventArgs)">
+            <summary>Обработчик неперехваченных исключений</summary>
+        </member>
+        <member name="M:ClassTableView.App.OnExceptionUnhandled(System.Object,System.UnhandledExceptionEventArgs)">
+            <summary>Обработчик неперехваченных исключений</summary>
+        </member>
+        <member name="M:ClassTableView.App.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="M:ClassTableView.App.Main">
+            <summary>
+            Application Entry Point.
+            </summary>
+        </member>
+        <member name="T:ClassTableView.MainWindow">
+            <summary>
+            Interaction logic for MainWindow.xaml
+            </summary>
+            <summary>
+            MainWindow
+            </summary>
+        </member>
+        <member name="F:ClassTableView.MainWindow.AssembliesProperty">
+            <summary>Сборки</summary>
+        </member>
+        <member name="P:ClassTableView.MainWindow.Assemblies">
+            <summary>Сборки</summary>
+        </member>
+        <member name="F:ClassTableView.MainWindow.SelectedTypeInfoProperty">
+            <summary>AssemblyTypeInfo</summary>
+        </member>
+        <member name="P:ClassTableView.MainWindow.SelectedTypeInfo">
+            <summary>AssemblyTypeInfo</summary>
+        </member>
+        <member name="F:ClassTableView.MainWindow.AssemblyTextProperty">
+            <summary>Содержание имени сборки</summary>
+        </member>
+        <member name="P:ClassTableView.MainWindow.AssemblyText">
+            <summary>Содержание имени сборки</summary>
+        </member>
+        <member name="F:ClassTableView.MainWindow.CountSelectedProperty">
+            <summary>Выбрано</summary>
+        </member>
+        <member name="P:ClassTableView.MainWindow.CountSelected">
+            <summary>Выбрано</summary>
+        </member>
+        <member name="M:ClassTableView.MainWindow.ShowError(System.Exception)">
+            <summary> Показывает всплывающее окно вывода информации об ошибке </summary>
+            <param name="e">ошибка</param>
+        </member>
+        <member name="M:ClassTableView.MainWindow.ShowCancellation">
+            <summary> Сообщение об отмене операции </summary>
+        </member>
+        <member name="M:ClassTableView.MainWindow.ShowFilePopUpMessage(System.String,System.Boolean,System.Boolean,System.String)">
+            <summary>
+            Показывает всплывающее окно для открытия файла или директории
+            </summary>
+            <param name="FilePath">путь к файлу (директории)</param>
+            <param name="ShowFile">показывать кнопку пути к файлу</param>
+            <param name="ShowDirectory">показывать кнопку пути к директории</param>
+            <param name="Area">зона для показа сообщения</param>
+        </member>
+        <member name="M:ClassTableView.MainWindow.ShowFilePopUpMessage(System.String,System.String,System.String)">
+            <summary>
+            Показывает всплывающее окно для открытия файла или директории
+            </summary>
+            <param name="FilePath">путь к файлу </param>
+            <param name="DirectoryPath">путь к директории</param>
+            <param name="Area">зона для показа сообщения</param>
+        </member>
+        <member name="M:ClassTableView.MainWindow.ShowButtonWindow(System.String,System.String,System.Windows.RoutedEventHandler,System.String,System.Windows.RoutedEventHandler,System.String,System.Nullable{System.TimeSpan},System.String)">
+            <summary>
+            Всплывающее окно с кнопками
+            </summary>
+            <param name="Message">Текст сообщения</param>
+            <param name="Title">Заголовок</param>
+            <param name="LeftButton">Действие при нажатии на левую кнопку (если не задано кнопка не отображается)</param>
+            <param name="LeftButtonContent">Содержимое кнопки (например текст) - если не задано - "Cancel"</param>
+            <param name="RightButton">Действие при нажатии на правую кнопку (если не задано кнопка не отображается)</param>
+            <param name="RightButtonContent">Содержимое кнопки (например текст) - если не задано - "Ok"</param>
+            <param name="TimeSpan">время которое будет показано окно, если не задано - 5 секунд</param>
+            <param name="AreaName">зона окна при необходимости</param>
+            <example>
+            <code>
+            Notifier.ShowInfoWindow("The picture is successfully added","Success",
+            RightButton:(Sender, Args) =&gt; _ = Process.Start(report_file.FullName), RightButtonContent:"Open file",
+            TimeSpan:TimeSpan.FromSeconds(10));
+            </code>
+            </example>
+        </member>
+        <member name="M:ClassTableView.MainWindow.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -41,14 +39,14 @@ namespace AssemblyGetDataTable
             return (assembly, types);
         }
 
-        public static IEnumerable<AssemblyInfoModel> GetAssemblyInfo(Assembly assembly)
+        public static IEnumerable<AssemblyInfo> GetAssemblyInfo(Assembly assembly, string AssemblyPath)
         {
             var assemblies = new List<Assembly> { assembly };
             var entry = assembly.GetReferencedAssemblies().Select(a => Assembly.Load(a.Name)).ToList();
             if (entry?.Count > 0)
                 assemblies.AddRange(entry);
 
-            return assemblies.Select(a=> new AssemblyInfoModel(a));
+            return assemblies.Select(a=> new AssemblyInfo(a,AssemblyPath));
         }
     }
 }

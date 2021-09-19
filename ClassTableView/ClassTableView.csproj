@@ -15,5 +15,11 @@
   <ItemGroup>
     <ProjectReference Include="..\AssemblyGetDataTable\AssemblyGetDataTable.csproj" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>ClassTableView.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>ClassTableView.xml</DocumentationFile>
+  </PropertyGroup>
 
 </Project>

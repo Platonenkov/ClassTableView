@@ -17,11 +17,13 @@ namespace ClassTableView
                     FontColor = System.Drawing.Color.Black,
                     FontSize = 12,
                     IsBoldFont = true,
-                    LeftBorderStyle = BorderStyleValues.Thick,
-                    RightBorderStyle = BorderStyleValues.Thick,
-                    BottomBorderStyle = BorderStyleValues.Thick,
+                    TopBorderStyle = BorderStyleValues.Thin,
+                    LeftBorderStyle = BorderStyleValues.Thin,
+                    RightBorderStyle = BorderStyleValues.Thin,
+                    BottomBorderStyle = BorderStyleValues.Thin,
+                    HorizontalAlignment = HorizontalAlignmentValues.Center,
                     BorderColor = System.Drawing.Color.Black,
-                    FillColor = Color.Orange, FillPattern = PatternValues.Solid
+                    FillColor = Color.LightSteelBlue, FillPattern = PatternValues.Solid
                 },
                 // Стиль для заголовков (№3)
                 new()
@@ -29,9 +31,10 @@ namespace ClassTableView
                     FontColor = System.Drawing.Color.Black,
                     FontSize = 12,
                     IsBoldFont = true,
-                    LeftBorderStyle = BorderStyleValues.Thick,
-                    RightBorderStyle = BorderStyleValues.Thick,
-                    BottomBorderStyle = BorderStyleValues.Thick,
+                    TopBorderStyle = BorderStyleValues.Thin,
+                    LeftBorderStyle = BorderStyleValues.Thin,
+                    RightBorderStyle = BorderStyleValues.Thin,
+                    BottomBorderStyle = BorderStyleValues.Thin,
                     BorderColor = System.Drawing.Color.Black,
                     FillColor = Color.LightSteelBlue, FillPattern = PatternValues.Solid
                 },
@@ -39,9 +42,10 @@ namespace ClassTableView
                 new()
                 {
                     FontSize = 12,
-                    LeftBorderStyle = BorderStyleValues.Dashed,
-                    RightBorderStyle = BorderStyleValues.Dashed,
-                    BorderColor = System.Drawing.Color.Black
+                    BorderColor = System.Drawing.Color.Black,
+                    LeftBorderStyle = BorderStyleValues.Thin,
+                    RightBorderStyle = BorderStyleValues.Thin,
+
                 }
             });
     }

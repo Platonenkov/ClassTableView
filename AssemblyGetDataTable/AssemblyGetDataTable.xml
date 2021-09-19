@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AssemblyGetDataTable</name>
+    </assembly>
+    <members>
+        <member name="T:AssemblyGetDataTable.TestClass">
+            <summary>
+            Тестовый класс
+            </summary>
+        </member>
+        <member name="P:AssemblyGetDataTable.TestClass.Name">
+            <summary>
+            Имя
+            </summary>
+        </member>
+        <member name="F:AssemblyGetDataTable.TestClass.Age">
+            <summary> Возраст </summary>
+        </member>
+        <member name="P:AssemblyGetDataTable.TestClass.Day">
+            <summary> Дни </summary>
+        </member>
+        <member name="P:AssemblyGetDataTable.TestClass.Parent">
+            <summary>
+            родитель
+            </summary>
+        </member>
+        <member name="P:AssemblyGetDataTable.TestClass.Child">
+            <summary>
+            потомок
+            </summary>
+        </member>
+        <member name="T:AssemblyGetDataTable.TestInterface">
+            <summary>
+            Тестовый интерфейс
+            </summary>
+        </member>
+        <member name="P:AssemblyGetDataTable.TestInterface.I">
+            <summary>
+            число
+            </summary>
+        </member>
+        <member name="P:AssemblyGetDataTable.TestInterface.R">
+            <summary>
+            строка
+            </summary>
+        </member>
+        <member name="P:AssemblyGetDataTable.TestInterface.Test">
+            <summary>
+            класс
+            </summary>
+        </member>
+        <member name="P:AssemblyGetDataTable.TestInterface.Asct">
+            <summary>
+            Акшен
+            </summary>
+        </member>
+        <member name="M:AssemblyGetDataTable.TestInterface.Method">
+            <summary>
+            метод
+            </summary>
+        </member>
+        <member name="T:AssemblyGetDataTable.TestEnum">
+            <summary>
+            Тестовый енам
+            </summary>
+        </member>
+        <member name="F:AssemblyGetDataTable.TestEnum.row">
+            <summary>
+            строка
+            </summary>
+        </member>
+        <member name="F:AssemblyGetDataTable.TestEnum.num">
+            <summary>
+            число
+            </summary>
+        </member>
+        <member name="F:AssemblyGetDataTable.TestEnum.any">
+            <summary>
+            все
+            </summary>
+        </member>
+    </members>
+</doc>
