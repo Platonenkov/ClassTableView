@@ -17,11 +17,12 @@ namespace AssemblyGetDataTable
         {
             return type.BaseType == typeof(Enum)
                 ? type.GetMembers(
-                    //BindingFlags.Instance
-                    //| BindingFlags.Static
-                    //| BindingFlags.Public
-                    //| BindingFlags.NonPublic
-                    //| BindingFlags.DeclaredOnly
+                //BindingFlags.Instance
+                //| BindingFlags.Static
+                //| BindingFlags.Public
+                //| BindingFlags.NonPublic
+                //| BindingFlags.DeclaredOnly
+
                 ).Where(v => v.MemberType == MemberTypes.Field)
                 : type.GetMembers()
                    .Where(v => v.MemberType == MemberTypes.Property);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace AssemblyGetDataTable
     {
         public string Name { get; }
         public Type Type { get; }
+        public string Note { get; set; }
         public IEnumerable<CustomAttributeData> Attributes { get; }
         public string Description { get; }
         public string Summary { get; private set; }
@@ -33,6 +35,38 @@ namespace AssemblyGetDataTable
             Name = memberInfo.Name;
             Attributes = memberInfo.CustomAttributes;
             Description = memberInfo.GetCustomAttribute<DescriptionAttribute>()?.Description;
+
+            switch (memberInfo.MemberType)
+            {
+                case MemberTypes.Property:
+                case MemberTypes.Field:
+                    if (Nullable.GetUnderlyingType(Type)!=null)
+                    {
+                        Type = Type.GetGenericArguments()[0];
+                        Note += "CanBeNull ";
+                    }
+                    if (((PropertyInfo)memberInfo).GetMethod.IsVirtual)
+                    {
+                        string info = null;
+                        var type = FindIEnumerable(Type);
+                        if (type is not null)
+                            info = type.GetGenericArguments()[0].Name;
+                        info ??= Type.Name;
+                        if (type is not null && !type.GetGenericArguments()[0].IsValueType && !(type.GetGenericArguments()[0] == typeof(string)))
+                            Note += $"Foreign Key: {info}";
+                        else
+                            Note += Type.IsValueType
+                                ? memberInfo.Name.ToUpper().Contains("ID") ? "Primary Key" : null
+                                : $"Foreign Key: {info}";
+
+                        //if ((type is not null && !type.GetGenericArguments()[0].IsValueType&&!(type.GetGenericArguments()[0] == typeof(string))) || Type.IsValueType)
+                        //    Note = Type.IsValueType 
+                        //        ? memberInfo.Name.ToUpper().Contains("ID") ? "Primary Key" : null 
+                        //        : $"Foreign Key: {info}";
+                    }
+                    break;
+            }
+
             GetXMLDocumentData(memberInfo);
         }
         private XmlDocument _Doc;
@@ -96,6 +130,37 @@ namespace AssemblyGetDataTable
 
             return summary;
         }
-
+        private static Type FindIEnumerable(Type seqType)
+        {
+            if (seqType == null || seqType == typeof(string))
+                return null;
+            if (seqType.IsArray)
+                return typeof(IEnumerable<>).MakeGenericType(seqType.GetElementType());
+            if (seqType.IsGenericType)
+            {
+                foreach (Type arg in seqType.GetGenericArguments())
+                {
+                    Type ienum = typeof(IEnumerable<>).MakeGenericType(arg);
+                    if (ienum.IsAssignableFrom(seqType))
+                    {
+                        return ienum;
+                    }
+                }
+            }
+            Type[] ifaces = seqType.GetInterfaces();
+            if (ifaces != null && ifaces.Length > 0)
+            {
+                foreach (Type iface in ifaces)
+                {
+                    Type ienum = FindIEnumerable(iface);
+                    if (ienum != null) return ienum;
+                }
+            }
+            if (seqType.BaseType != null && seqType.BaseType != typeof(object))
+            {
+                return FindIEnumerable(seqType.BaseType);
+            }
+            return null;
+        }
     }
 }

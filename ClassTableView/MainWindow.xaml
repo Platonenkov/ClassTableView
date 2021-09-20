@@ -21,7 +21,11 @@
                 <ColumnDefinition Width="7*"/>
             </Grid.ColumnDefinitions>
         <DockPanel Grid.ColumnSpan="3" Margin="0,5">
-            <Button Click="LoadAssemblyClick" Content="Load from file" VerticalAlignment="Top" HorizontalAlignment="Left" Width="100"/>
+            <StackPanel Orientation="Horizontal">
+                <Button Click="LoadAssemblyClick" Content="Load from file" VerticalAlignment="Top" HorizontalAlignment="Left" Width="100"/>
+                <Button Click="LoadBaseClick" Content="Load current" VerticalAlignment="Top" HorizontalAlignment="Left" Width="100"  Margin="15,0"/>
+
+            </StackPanel>
             <StackPanel Orientation="Horizontal"  HorizontalAlignment="Right"  >
                 <Button Click="LoadReport" Content="Report 1" VerticalAlignment="Top" Width="100" Margin="15,0"/>
                 <Button Click="LoadReport2" Content="Report 2" VerticalAlignment="Top" Width="100"/>
@@ -33,7 +37,10 @@
         <TreeView Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Assemblies, UpdateSourceTrigger=PropertyChanged}" x:Name="TreeViewData">
             <TreeView.Resources>
             <HierarchicalDataTemplate DataType="{x:Type as:AssemblyInfo}" ItemsSource="{Binding TypesInfo, UpdateSourceTrigger=PropertyChanged}">
-                    <TextBlock Text="{Binding Path=Assembly.FullName}" TextTrimming="CharacterEllipsis" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button Width="30" Height="10" Click="GetAssemblyReport" Content="Load" FontSize="5" Margin="5" />
+                        <TextBlock Text="{Binding Path=Assembly.FullName}" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
             </HierarchicalDataTemplate>
             <DataTemplate DataType="{x:Type  as:AssemblyTypeInfo}" >
                 <StackPanel Orientation="Horizontal">
@@ -52,6 +59,7 @@
                     <DataGridTextColumn Header="Type" Binding="{Binding Type.Name}" IsReadOnly="True"/>
                     <DataGridTextColumn Header="Description" Binding="{Binding Description}" IsReadOnly="True"/>
                     <DataGridTextColumn Header="Summary" Binding="{Binding Summary}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Note" Binding="{Binding Note}" IsReadOnly="True"/>
                     <DataGridTemplateColumn Header="Attributes" IsReadOnly="True" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate >

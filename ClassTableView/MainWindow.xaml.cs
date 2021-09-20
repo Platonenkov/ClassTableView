@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using AssemblyGetDataTable;
@@ -26,8 +27,8 @@ namespace ClassTableView
         public MainWindow()
         {
             InitializeComponent();
-            var assembly = Assembly.GetEntryAssembly();
-            LoadAssembly(assembly, AppDomain.CurrentDomain.BaseDirectory);
+            //var assembly = Assembly.GetEntryAssembly();
+            //LoadAssembly(assembly, AppDomain.CurrentDomain.BaseDirectory);
         }
 
         #endregion
@@ -94,11 +95,21 @@ namespace ClassTableView
         #endregion
         public ObservableCollection<AssemblyTypeInfo> TypesForReport { get; set; } = new();
 
+        private string AssemblyPath;
         #endregion
 
         #region Методы
+        private async void LoadBaseClick(object Sender, RoutedEventArgs E)
+        {
+            using var progress = App.Notifier.ShowProgressBar("Загрузка базовой сборки", true, false);
+            await Task.Yield().ConfigureAwait(false);
+            progress.Report((null, "Загрузка", null, null));
+            var assembly = Assembly.GetEntryAssembly();
+            LoadAssembly(assembly, AppDomain.CurrentDomain.BaseDirectory);
 
-        private void LoadAssemblyClick(object Sender, RoutedEventArgs E)
+        }
+
+        private async void LoadAssemblyClick(object Sender, RoutedEventArgs E)
         {
             var dlg = new OpenFileDialog();
             if (dlg.ShowDialog() == true)
@@ -106,9 +117,30 @@ namespace ClassTableView
                 var file = dlg.FileName;
                 try
                 {
+                    using var progress = App.Notifier.ShowProgressBar($"Загрузка сборки {Path.GetFileNameWithoutExtension(file)}", true, false);
+                    await Task.Yield().ConfigureAwait(false);
+                    progress.Report((null, "Загрузка", null, null));
+
                     var assembly = Assembly.LoadFrom(file);
-                    Assemblies = new List<AssemblyInfo>() { new AssemblyInfo(assembly, file) };
-                    TypesForReport = new();
+                    //var t = assembly.GetLoadedModules();
+                    //var included = Assembly.GetEntryAssembly().GetReferencedAssemblies();
+                    //var test_included = GetReferencedAssemblies(Assembly.GetEntryAssembly()).ToArray();
+                    //var test_included_loaded = GetReferencedAssemblies(assembly).ToArray();
+                    //foreach (var module in t)
+                    //{
+                    //    if (!included.Contains(i => i.Name == module.Name))
+                    //    {
+
+                    //    }
+                    //}
+                    var assemblyes = new List<AssemblyInfo>() { new AssemblyInfo(assembly, file) };
+                    Application.Current.Dispatcher.Invoke(
+                        () =>
+                        {
+                            AssemblyPath = file;
+                            Assemblies = assemblyes;
+                            TypesForReport = new();
+                        });
                 }
                 catch (Exception e)
                 {
@@ -117,33 +149,81 @@ namespace ClassTableView
 
             }
         }
+        //private static IEnumerable<Assembly> GetReferencedAssemblies(Assembly a, HashSet<string> visitedAssemblies = null)
+        //{
+        //    visitedAssemblies = visitedAssemblies ?? new HashSet<string>();
+        //    if (!visitedAssemblies.Add(a.GetName().EscapedCodeBase))
+        //    {
+        //        yield break;
+        //    }
 
+        //    foreach (var assemblyRef in a.GetReferencedAssemblies())
+        //    {
+        //        if (visitedAssemblies.Contains(assemblyRef.EscapedCodeBase)) { continue; }
+        //        var loadedAssembly = Assembly.Load(assemblyRef);
+        //        yield return loadedAssembly;
+        //        foreach (var referenced in GetReferencedAssemblies(loadedAssembly, visitedAssemblies))
+        //        {
+        //            yield return referenced;
+        //        }
+
+        //    }
+        //}
         void LoadAssembly(Assembly assembly, string AssemblyPath)
         {
-            Assemblies = AssemblyDataTable.GetAssemblyInfo(assembly, AssemblyPath).ToArray();
-            TypesForReport = new();
+            var assemblyes = AssemblyDataTable.GetAssemblyInfo(assembly, AssemblyPath).ToArray();
+            Application.Current.Dispatcher.Invoke(
+                () =>
+                {
+                    this.AssemblyPath = AssemblyPath;
+                    Assemblies = assemblyes;
+                    TypesForReport = new();
+                });
         }
-        private void LoadReport(object Sender, RoutedEventArgs E)
+        private void LoadReport(object Sender, RoutedEventArgs E) => SaveReport(TypesForReport, false);
+
+
+        private void LoadReport2(object Sender, RoutedEventArgs E) => SaveReport(TypesForReport, true);
+
+
+        void SaveReport(IEnumerable<AssemblyTypeInfo> Data, bool MultyPage)
         {
             try
             {
-                if (CountSelected == 0)
+                if (!Data.Any())
                     return;
                 var dialog = new SaveFileDialog
                 {
                     FileName = "New report",
-                    Filter = @"Excel Files (*.xlsx)|*.xlsx", //|Txt Files (*.txt)|*.txt|All files (*.*)|*.*
+                    Filter = @"Excel Files (*.xlsx)|*.xlsx"
                 };
                 if (dialog.ShowDialog() != true) return;
 
                 var file_path = dialog.FileName;
-                using var progress = App.Notifier.ShowProgressBar("Загрузка отчёта", true, true, TrimText: true);
-                var total = CountSelected;
+
+                if (MultyPage)
+                    ReportType2(Data, file_path);
+                else
+                    ReportType1(Data, file_path);
+            }
+            catch (Exception e)
+            {
+                ShowError(e);
+            }
+
+
+        }
+        void ReportType1(IEnumerable<AssemblyTypeInfo> Data, string file_path)
+        {
+            using var progress = App.Notifier.ShowProgressBar("Загрузка отчёта", true, true, TrimText: true);
+            try
+            {
+                var total = Data.Count();
                 var current = 0;
                 using var writer = new EasyWriter(file_path, Helper.Styles);
 
                 var is_name_was_changed = false;
-                foreach (var type in TypesForReport)
+                foreach (var type in Data)
                 {
                     var percent = current * 100 / total;
                     progress.Report((percent, type.Type.Name, null, null));
@@ -173,7 +253,7 @@ namespace ClassTableView
                     writer.AddRow(1, 0, true, true);
                     writer.MergeCells(1, 1, 4, 1);
                     writer.AddCell($"{type.Type.Name} {type.Summary}", 1, 1, 2);
-                    writer.PrintEmptyCells(2,4,1,2);
+                    writer.PrintEmptyCells(2, 4, 1, 2);
                     //writer.AddCell(type.Type.Name, 1, 1, 2);
                     //writer.AddRow(2, 0, true, true);
                     //writer.AddCell(type.Summary, 1, 2, 2);
@@ -210,28 +290,14 @@ namespace ClassTableView
             {
                 ShowCancellation();
             }
-            catch (Exception e)
-            {
-                ShowError(e);
-            }
-        }
 
-        private void LoadReport2(object Sender, RoutedEventArgs E)
+        }
+        void ReportType2(IEnumerable<AssemblyTypeInfo> Data, string file_path)
         {
+            using var progress = App.Notifier.ShowProgressBar("Загрузка отчёта", true, true, TrimText: true);
             try
             {
-                if (CountSelected == 0)
-                    return;
-                var dialog = new SaveFileDialog
-                {
-                    FileName = "New report",
-                    Filter = @"Excel Files (*.xlsx)|*.xlsx", //|Txt Files (*.txt)|*.txt|All files (*.*)|*.*
-                };
-                if (dialog.ShowDialog() != true) return;
-
-                var file_path = dialog.FileName;
-                using var progress = App.Notifier.ShowProgressBar("Загрузка отчёта", true, true, TrimText: true);
-                var total = CountSelected;
+                var total = Data.Count();
                 var current = 0;
                 using var writer = new EasyWriter(file_path, Helper.Styles);
                 string sheet_name_1 = "report";
@@ -239,7 +305,7 @@ namespace ClassTableView
                 var row_n = 2U;
                 ////writer.SetFilter(1, 5, 3, 5); //SetFilter(string ListName, uint FirstColumn, uint LastColumn, uint FirstRow, uint LastRow)
                 writer.SetGrouping(false, false); // SetGrouping(bool SummaryBelow = false, bool SummaryRight = false)
-                ////writer.MergeCells(6, 3, 10, 5); //MergeCells(int StartCell, int StartRow, int EndCell, int EndRow)
+                                                  ////writer.MergeCells(6, 3, 10, 5); //MergeCells(int StartCell, int StartRow, int EndCell, int EndRow)
                 var width_setting = new List<WidthOpenXmlEx>
                 {
                     new(1, 2, 30),
@@ -247,7 +313,7 @@ namespace ClassTableView
                 };
                 writer.SetWidth(width_setting); //SetWidth(IEnumerable<WidthOpenXmlEx> settings)
 
-                foreach (var type in TypesForReport)
+                foreach (var type in Data)
                 {
                     var percent = current * 100 / total;
                     progress.Report((percent, type.Type.Name, null, null));
@@ -255,7 +321,7 @@ namespace ClassTableView
 
                     writer.AddRow(row_n, 0, true, true);
                     writer.AddCell($"{type.Type.Name} {type.Summary}", 1, row_n, 2);
-                    writer.PrintEmptyCells(2,4, row_n, 2);
+                    writer.PrintEmptyCells(2, 4, row_n, 2);
                     writer.MergeCells(1, row_n, 4, row_n);
                     row_n++;
                     //writer.AddRow(row_n, 0, true, true);
@@ -287,18 +353,14 @@ namespace ClassTableView
                 }
 
                 ShowFilePopUpMessage(file_path);
+
             }
             catch (OperationCanceledException)
             {
                 ShowCancellation();
             }
-            catch (Exception e)
-            {
-                ShowError(e);
-            }
 
         }
-
         private void ToggleButton_OnChecked(object Sender, RoutedEventArgs E)
         {
             if (Sender is not CheckBox { DataContext: AssemblyTypeInfo type } check)
@@ -315,6 +377,13 @@ namespace ClassTableView
                     CountSelected += 1;
                     break;
             }
+        }
+
+        private void GetAssemblyReport(object Sender, RoutedEventArgs E)
+        {
+            if (Sender is not Button { DataContext: AssemblyInfo assembly } btn)
+                return;
+            SaveReport(assembly.TypesInfo, true);
         }
 
         #region Notifications
