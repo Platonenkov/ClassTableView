@@ -21,7 +21,7 @@ namespace ClassTableView
                     LeftBorderStyle = BorderStyleValues.Thin,
                     RightBorderStyle = BorderStyleValues.Thin,
                     BottomBorderStyle = BorderStyleValues.Thin,
-                    HorizontalAlignment = HorizontalAlignmentValues.Center,
+                    HorizontalAlignment = HorizontalAlignmentValues.Left,
                     BorderColor = System.Drawing.Color.Black,
                     FillColor = Color.LightSteelBlue, FillPattern = PatternValues.Solid
                 },
@@ -36,6 +36,7 @@ namespace ClassTableView
                     RightBorderStyle = BorderStyleValues.Thin,
                     BottomBorderStyle = BorderStyleValues.Thin,
                     BorderColor = System.Drawing.Color.Black,
+                    HorizontalAlignment = HorizontalAlignmentValues.Center,
                     FillColor = Color.LightSteelBlue, FillPattern = PatternValues.Solid
                 },
                 // стиль для основных данных (№4)

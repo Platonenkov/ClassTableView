@@ -46,7 +46,7 @@ namespace AssemblyGetDataTable
             if (entry?.Count > 0)
                 assemblies.AddRange(entry);
 
-            return assemblies.Select(a=> new AssemblyInfo(a,AssemblyPath));
+            return assemblies.Select(a=> new AssemblyInfo(a,Path.Combine(AssemblyPath,a.ManifestModule.Name)));
         }
     }
 }

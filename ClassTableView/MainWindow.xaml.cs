@@ -27,7 +27,7 @@ namespace ClassTableView
         {
             InitializeComponent();
             var assembly = Assembly.GetEntryAssembly();
-            LoadAssembly(assembly, assembly.Location);
+            LoadAssembly(assembly, AppDomain.CurrentDomain.BaseDirectory);
         }
 
         #endregion
@@ -171,11 +171,13 @@ namespace ClassTableView
                     writer.SetWidth(width_setting); //SetWidth(IEnumerable<WidthOpenXmlEx> settings)
 
                     writer.AddRow(1, 0, true, true);
-                    writer.AddCell(type.Type.Name, 1, 1, 2);
                     writer.MergeCells(1, 1, 4, 1);
-                    writer.AddRow(2, 0, true, true);
-                    writer.AddCell(type.Summary, 1, 2, 2);
-                    writer.MergeCells(1, 2, 4, 1);
+                    writer.AddCell($"{type.Type.Name} {type.Summary}", 1, 1, 2);
+                    writer.PrintEmptyCells(2,4,1,2);
+                    //writer.AddCell(type.Type.Name, 1, 1, 2);
+                    //writer.AddRow(2, 0, true, true);
+                    //writer.AddCell(type.Summary, 1, 2, 2);
+                    //writer.MergeCells(1, 2, 4, 1);
                     writer.AddRow(3, 0, true, true);
                     writer.AddCell("Property Name", 1, 3, 3);
                     writer.AddCell("Type", 2, 3, 3);
@@ -252,13 +254,14 @@ namespace ClassTableView
 
 
                     writer.AddRow(row_n, 0, true, true);
-                    writer.AddCell(type.Type.Name, 1, row_n, 2);
+                    writer.AddCell($"{type.Type.Name} {type.Summary}", 1, row_n, 2);
+                    writer.PrintEmptyCells(2,4, row_n, 2);
                     writer.MergeCells(1, row_n, 4, row_n);
                     row_n++;
-                    writer.AddRow(row_n, 0, true, true);
-                    writer.AddCell(type.Summary, 1, row_n, 2);
-                    writer.MergeCells(1, row_n, 4, row_n);
-                    row_n++;
+                    //writer.AddRow(row_n, 0, true, true);
+                    //writer.MergeCells(1, row_n, 4, row_n);
+                    //writer.AddCell(type.Summary, 1, row_n, 2);
+                    //row_n++;
 
                     writer.AddRow(row_n, 1, true, true);
                     writer.AddCell("Property Name", 1, row_n, 3);
