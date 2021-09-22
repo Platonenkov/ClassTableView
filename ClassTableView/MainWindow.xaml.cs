@@ -246,14 +246,14 @@ namespace ClassTableView
                     var width_setting = new List<WidthOpenXmlEx>
                     {
                         new(1, 2, 30),
-                        new(3, 4, 50),
+                        new(3, 5, 50),
                     };
                     writer.SetWidth(width_setting); //SetWidth(IEnumerable<WidthOpenXmlEx> settings)
 
                     writer.AddRow(1, 0, true, true);
-                    writer.MergeCells(1, 1, 4, 1);
+                    writer.MergeCells(1, 1, 5, 1);
                     writer.AddCell($"{type.Type.Name} {type.Summary}", 1, 1, 2);
-                    writer.PrintEmptyCells(2, 4, 1, 2);
+                    writer.PrintEmptyCells(2, 5, 1, 2);
                     //writer.AddCell(type.Type.Name, 1, 1, 2);
                     //writer.AddRow(2, 0, true, true);
                     //writer.AddCell(type.Summary, 1, 2, 2);
@@ -263,6 +263,7 @@ namespace ClassTableView
                     writer.AddCell("Type", 2, 3, 3);
                     writer.AddCell("Description", 3, 3, 3);
                     writer.AddCell("Summary", 4, 3, 3);
+                    writer.AddCell("Note", 5, 3, 3);
                     var row_n = 4U;
 
                     var current_type = type.Members.FirstOrDefault()?.DeclaringType?.BaseType;
@@ -275,6 +276,7 @@ namespace ClassTableView
                         writer.AddCell(property.Type.Name, 2, row_n, 4);
                         writer.AddCell(property.Description, 3, row_n, 4);
                         writer.AddCell(property.Summary, 4, row_n, 4);
+                        writer.AddCell(property.Note, 5, row_n, 4);
                         row_n++;
                     }
 
@@ -309,7 +311,7 @@ namespace ClassTableView
                 var width_setting = new List<WidthOpenXmlEx>
                 {
                     new(1, 2, 30),
-                    new(3, 4, 50),
+                    new(3, 5, 50),
                 };
                 writer.SetWidth(width_setting); //SetWidth(IEnumerable<WidthOpenXmlEx> settings)
 
@@ -321,8 +323,8 @@ namespace ClassTableView
 
                     writer.AddRow(row_n, 0, true, true);
                     writer.AddCell($"{type.Type.Name} {type.Summary}", 1, row_n, 2);
-                    writer.PrintEmptyCells(2, 4, row_n, 2);
-                    writer.MergeCells(1, row_n, 4, row_n);
+                    writer.PrintEmptyCells(2, 5, row_n, 2);
+                    writer.MergeCells(1, row_n, 5, row_n);
                     row_n++;
                     //writer.AddRow(row_n, 0, true, true);
                     //writer.MergeCells(1, row_n, 4, row_n);
@@ -334,6 +336,7 @@ namespace ClassTableView
                     writer.AddCell("Type", 2, row_n, 3);
                     writer.AddCell("Description", 3, row_n, 3);
                     writer.AddCell("Summary", 4, row_n, 3);
+                    writer.AddCell("Note", 5, row_n, 3);
                     row_n++;
 
                     var current_type = type.Members.FirstOrDefault()?.DeclaringType?.BaseType;
@@ -346,6 +349,7 @@ namespace ClassTableView
                         writer.AddCell(property.Type.Name, 2, row_n, 4);
                         writer.AddCell(property.Description, 3, row_n, 4);
                         writer.AddCell(property.Summary, 4, row_n, 4);
+                        writer.AddCell(property.Note, 5, row_n, 4);
                         row_n++;
                     }
 

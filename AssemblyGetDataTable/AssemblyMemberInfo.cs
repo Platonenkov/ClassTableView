@@ -39,7 +39,7 @@ namespace AssemblyGetDataTable
             switch (memberInfo.MemberType)
             {
                 case MemberTypes.Property:
-                case MemberTypes.Field:
+                //case MemberTypes.Field:
                     if (Nullable.GetUnderlyingType(Type)!=null)
                     {
                         Type = Type.GetGenericArguments()[0];
