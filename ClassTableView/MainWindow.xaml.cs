@@ -27,8 +27,6 @@ namespace ClassTableView
         public MainWindow()
         {
             InitializeComponent();
-            //var assembly = Assembly.GetEntryAssembly();
-            //LoadAssembly(assembly, AppDomain.CurrentDomain.BaseDirectory);
         }
 
         #endregion
@@ -121,18 +119,12 @@ namespace ClassTableView
                     await Task.Yield().ConfigureAwait(false);
                     progress.Report((null, "Загрузка", null, null));
 
-                    var assembly = Assembly.LoadFrom(file);
-                    //var t = assembly.GetLoadedModules();
-                    //var included = Assembly.GetEntryAssembly().GetReferencedAssemblies();
-                    //var test_included = GetReferencedAssemblies(Assembly.GetEntryAssembly()).ToArray();
-                    //var test_included_loaded = GetReferencedAssemblies(assembly).ToArray();
-                    //foreach (var module in t)
-                    //{
-                    //    if (!included.Contains(i => i.Name == module.Name))
-                    //    {
+                    UnloadAssembly();
 
-                    //    }
-                    //}
+                    _Context = new CustomAssemblyLoadContext();
+
+                    //var assembly = Assembly.LoadFrom(file);
+                    var assembly = _Context.LoadFromAssemblyPath(file);
                     var assemblyes = new List<AssemblyInfo>() { new AssemblyInfo(assembly, file) };
                     Application.Current.Dispatcher.Invoke(
                         () =>
@@ -149,26 +141,6 @@ namespace ClassTableView
 
             }
         }
-        //private static IEnumerable<Assembly> GetReferencedAssemblies(Assembly a, HashSet<string> visitedAssemblies = null)
-        //{
-        //    visitedAssemblies = visitedAssemblies ?? new HashSet<string>();
-        //    if (!visitedAssemblies.Add(a.GetName().EscapedCodeBase))
-        //    {
-        //        yield break;
-        //    }
-
-        //    foreach (var assemblyRef in a.GetReferencedAssemblies())
-        //    {
-        //        if (visitedAssemblies.Contains(assemblyRef.EscapedCodeBase)) { continue; }
-        //        var loadedAssembly = Assembly.Load(assemblyRef);
-        //        yield return loadedAssembly;
-        //        foreach (var referenced in GetReferencedAssemblies(loadedAssembly, visitedAssemblies))
-        //        {
-        //            yield return referenced;
-        //        }
-
-        //    }
-        //}
         void LoadAssembly(Assembly assembly, string AssemblyPath)
         {
             var assemblyes = AssemblyDataTable.GetAssemblyInfo(assembly, AssemblyPath).ToArray();
@@ -180,6 +152,29 @@ namespace ClassTableView
                     TypesForReport = new();
                 });
         }
+
+        private CustomAssemblyLoadContext _Context;
+        private void UnloadAssembly(object Sender, RoutedEventArgs RoutedEventArgs)
+        {
+            UnloadAssembly();
+        }
+        private void UnloadAssembly()
+        {
+            _Context?.Unload();
+            _Context = null;
+            Application.Current.Dispatcher.Invoke(
+                () =>
+                {
+
+                    Assemblies = Enumerable.Empty<AssemblyInfo>();
+                    AssemblyPath = null;
+                    TypesForReport = new();
+                });
+            // очистка
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
         private void LoadReport(object Sender, RoutedEventArgs E) => SaveReport(TypesForReport, false);
 
 
