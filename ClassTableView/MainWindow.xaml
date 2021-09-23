@@ -23,7 +23,6 @@
         <DockPanel Grid.ColumnSpan="3" Margin="0,5">
             <StackPanel Orientation="Horizontal">
                 <Button Click="LoadAssemblyClick" Content="Load from file" VerticalAlignment="Top" HorizontalAlignment="Left" Width="100"/>
-                <Button Content="Unload" Click="UnloadAssembly" Width="50" Margin="15,0"/>
                 <Button Click="LoadBaseClick" Content="Load current" VerticalAlignment="Top" HorizontalAlignment="Left" Width="100"  Margin="15,0"/>
 
             </StackPanel>

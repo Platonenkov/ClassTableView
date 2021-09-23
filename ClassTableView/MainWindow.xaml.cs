@@ -119,10 +119,7 @@ namespace ClassTableView
                     await Task.Yield().ConfigureAwait(false);
                     progress.Report((null, "Загрузка", null, null));
 
-                    UnloadAssembly();
-
                     _Context = new CustomAssemblyLoadContext();
-
                     //var assembly = Assembly.LoadFrom(file);
                     var assembly = _Context.LoadFromAssemblyPath(file);
                     var assemblyes = new List<AssemblyInfo>() { new AssemblyInfo(assembly, file) };
@@ -133,6 +130,7 @@ namespace ClassTableView
                             Assemblies = assemblyes;
                             TypesForReport = new();
                         });
+                    UnloadAssembly();
                 }
                 catch (Exception e)
                 {
@@ -141,13 +139,13 @@ namespace ClassTableView
 
             }
         }
-        void LoadAssembly(Assembly assembly, string AssemblyPath)
+        void LoadAssembly(Assembly assembly, string assemblyPath)
         {
-            var assemblyes = AssemblyDataTable.GetAssemblyInfo(assembly, AssemblyPath).ToArray();
+            var assemblyes = AssemblyDataTable.GetAssemblyInfo(assembly, assemblyPath).ToArray();
             Application.Current.Dispatcher.Invoke(
                 () =>
                 {
-                    this.AssemblyPath = AssemblyPath;
+                    this.AssemblyPath = assemblyPath;
                     Assemblies = assemblyes;
                     TypesForReport = new();
                 });
@@ -162,15 +160,6 @@ namespace ClassTableView
         {
             _Context?.Unload();
             _Context = null;
-            Application.Current.Dispatcher.Invoke(
-                () =>
-                {
-
-                    Assemblies = Enumerable.Empty<AssemblyInfo>();
-                    AssemblyPath = null;
-                    TypesForReport = new();
-                });
-            // очистка
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
