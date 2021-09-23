@@ -119,10 +119,9 @@ namespace ClassTableView
                     await Task.Yield().ConfigureAwait(false);
                     progress.Report((null, "Загрузка", null, null));
 
-                    _Context = new CustomAssemblyLoadContext();
-                    //var assembly = Assembly.LoadFrom(file);
-                    var assembly = _Context.LoadFromAssemblyPath(file);
+                    var assembly = Assembly.LoadFrom(file);
                     var assemblyes = new List<AssemblyInfo>() { new AssemblyInfo(assembly, file) };
+
                     Application.Current.Dispatcher.Invoke(
                         () =>
                         {
@@ -130,7 +129,6 @@ namespace ClassTableView
                             Assemblies = assemblyes;
                             TypesForReport = new();
                         });
-                    UnloadAssembly();
                 }
                 catch (Exception e)
                 {
@@ -149,19 +147,6 @@ namespace ClassTableView
                     Assemblies = assemblyes;
                     TypesForReport = new();
                 });
-        }
-
-        private CustomAssemblyLoadContext _Context;
-        private void UnloadAssembly(object Sender, RoutedEventArgs RoutedEventArgs)
-        {
-            UnloadAssembly();
-        }
-        private void UnloadAssembly()
-        {
-            _Context?.Unload();
-            _Context = null;
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
         }
 
         private void LoadReport(object Sender, RoutedEventArgs E) => SaveReport(TypesForReport, false);
